@@ -46,6 +46,20 @@ class Number(Validator):
             )
 
 
+class String(Validator):
+    def __init__(self, size: tuple[int, int], predicate: callable = str.upper):
+        self.size = size  # (mix, max)
+        self.predicate = predicate
+
+    def validate(self, val):
+        if not isinstance(val, str):
+            raise TypeError(f"{val!r} must be str")
+        if len(val) < self.size[0] or self.size[1] < len(val):
+            raise ValueError(
+                f"{val!r} must have from {self.size[0]} to {self.size[1]} chars"
+            )
+
+
 class OrderedMeta(type):
     def __new__(mcls, clsname, bases, clsdict):
         fields = clsdict.get("_fields", [])
