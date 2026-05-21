@@ -40,7 +40,7 @@ class Number(Validator):
     def validate(self, val):
         if isinstance(val, Number):
             raise TypeError(f"{val!r} must be of type Number")
-        if val < self._value[0] or self._val[1] <= val:
+        if val < self._val[0] or self._val[1] <= val:
             raise ValueError(
                 f"{val!r} must be in range [{self._val[0]}, {self._val[1]}("
             )
@@ -64,12 +64,11 @@ class String(Validator):
 
 class OrderedMeta(type):
     def __new__(mcls, clsname, bases, clsdict):
-        fields = clsdict.get("_fields", [])
-        if fields:
-            for key, value in clsdict.items():
-                if isinstance(value, Validator):
-                    fields.append(value)
-            clsdict["_fields"] = fields
+        fields = []
+        for key, value in clsdict.items():
+            if isinstance(value, Validator):
+                fields.append(key)
+        clsdict["_fields"] = fields
         return super().__new__(mcls, clsname, bases, clsdict)
 
     def __prepare__(clsname, bases, **kwds):
@@ -77,13 +76,14 @@ class OrderedMeta(type):
 
 
 class Drawer(metaclass=OrderedMeta):
-    pass
+    def as_csv(self):
+        return ", ".join(f"{k}={getattr(self, k)}" for k in self._fields)
 
 
 class Lot(Drawer):
     kind = OneOf("metal", "wood", "plastic")
     quantity = Number(0.3, 10.2)
-    name = String(2, 12, str.upper)
+    name = String((2, 12), str.upper)
 
     def __init__(self, kind, quantity, name):
         self.kind = kind
@@ -93,8 +93,4 @@ class Lot(Drawer):
 
 if __name__ == "__main__":
     lot1 = Lot("metal", 7, "ACME")
-    print(lot1.kind)
-    try:
-        lot2 = Lot("paper")
-    except ValueError as exc:
-        print(str(exc))
+    print(lot1.as_csv())
