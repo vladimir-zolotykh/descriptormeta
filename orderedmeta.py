@@ -58,6 +58,8 @@ class String(Validator):
             raise ValueError(
                 f"{val!r} must have from {self.size[0]} to {self.size[1]} chars"
             )
+        if not self.predicate(val):
+            raise ValueError(f"{self.predicate.__name__}({val!r}) must be True")
 
 
 class OrderedMeta(type):
@@ -81,10 +83,12 @@ class Drawer(metaclass=OrderedMeta):
 class Lot(Drawer):
     kind = OneOf("metal", "wood", "plastic")
     quantity = Number(0.3, 10.2)
+    name = String(2, 12, str.upper)
 
     def __init__(self, kind, quantity):
         self.kind = kind
         self.quantity = quantity
+        self.name = "ACME"
 
 
 if __name__ == "__main__":
