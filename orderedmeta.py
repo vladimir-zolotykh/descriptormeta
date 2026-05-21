@@ -3,6 +3,7 @@
 # PYTHON_ARGCOMPLETE_OK
 from abc import ABC, abstractmethod
 from collections import OrderedDict
+from numbers import Number
 
 
 class Validator(ABC):
@@ -32,6 +33,19 @@ class OneOf(Validator):
             raise ValueError(f"{value!r} must be one of {self.choices}")
 
 
+class Number(Validator):
+    def __init__(self, min: Number, max: Number):
+        self._val: tuple[Number, Number] = (min, max)
+
+    def validate(self, val):
+        if isinstance(val, Number):
+            raise TypeError(f"{val!r} must be of type Number")
+        if val < self._value[0] or self._val[1] <= val:
+            raise ValueError(
+                f"{val!r} must be in range [{self._val[0]}, {self._val[1]}("
+            )
+
+
 class OrderedMeta(type):
     def __new__(mcls, clsname, bases, clsdict):
         fields = clsdict.get("_fields", [])
@@ -52,13 +66,15 @@ class Drawer(metaclass=OrderedMeta):
 
 class Lot(Drawer):
     kind = OneOf("metal", "wood", "plastic")
+    quantity = Number(0.3, 10.2)
 
-    def __init__(self, kind):
+    def __init__(self, kind, quantity):
         self.kind = kind
+        self.quantity = quantity
 
 
 if __name__ == "__main__":
-    lot1 = Lot("metal")
+    lot1 = Lot("metal", 7.2)
     print(lot1.kind)
     try:
         lot2 = Lot("paper")
