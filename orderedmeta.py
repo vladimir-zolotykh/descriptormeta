@@ -33,12 +33,21 @@ class OneOf(Validator):
 
 
 class OrderedMeta(type):
+    def __new__(mcls, clsname, bases, clsdict):
+        fields = clsdict.get("_fields", [])
+        if fields:
+            for key, value in clsdict.items():
+                if isinstance(value, Validator):
+                    fields.append(value)
+            clsdict["_fields"] = fields
+        return super().__new__(mcls, clsname, bases, clsdict)
+
     def __prepare__(clsname, bases, **kwds):
         return OrderedDict()
 
 
 class Drawer(metaclass=OrderedMeta):
-    _fields = []
+    pass
 
 
 class Lot(Drawer):
