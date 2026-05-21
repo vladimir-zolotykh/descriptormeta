@@ -85,14 +85,14 @@ class Lot(Drawer):
     quantity = Number(0.3, 10.2)
     name = String(2, 12, str.upper)
 
-    def __init__(self, kind, quantity):
+    def __init__(self, kind, quantity, name):
         self.kind = kind
         self.quantity = quantity
-        self.name = "ACME"
+        self.name = name
 
 
 if __name__ == "__main__":
-    lot1 = Lot("metal", 7.2)
+    lot1 = Lot("metal", 7, "ACME")
     print(lot1.kind)
     try:
         lot2 = Lot("paper")
