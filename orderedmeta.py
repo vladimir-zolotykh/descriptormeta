@@ -83,7 +83,7 @@ class Drawer(metaclass=OrderedMeta):
 class Lot(Drawer):
     kind = OneOf("metal", "wood", "plastic")
     quantity = Number(0.3, 10.2)
-    name = String((2, 12), str.upper)
+    name = String((2, 12), str.isupper)
 
     def __init__(self, kind, quantity, name):
         self.kind = kind
